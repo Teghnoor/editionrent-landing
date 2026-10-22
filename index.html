@@ -1,0 +1,981 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>editionrent.ai</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Flotte, Buchungen, Kunden und Finanzen in einem System, mit einem Tagesüberblick jeden Morgen. Für Autovermietungen in der Schweiz und Deutschland. Jetzt auf die Warteliste.">
+<meta name="theme-color" content="#0e1a2f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230e1a2f'/%3E%3Cpath d='M18 44 L30 20 M30 44 L42 20' stroke='%23f5c451' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='46' cy='42' r='4' fill='%23f5c451'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f3f0; --paper-2:#e9e7e1; --card:#ffffff; --ink:#0f1512; --ink-2:#3b4541; --mute:#6c7671;
+  --line:rgba(15,21,18,.10); --line-2:rgba(15,21,18,.16);
+  --green:#0e1a2f; --green-2:#1f3a8a; --mint:#f5c451; --mint-2:#fbefcc; --amber:#ef6c35; --red:#e2553f;
+  --r:20px; --r-sm:12px; --shadow:0 1px 2px rgba(15,21,18,.05),0 12px 40px -12px rgba(15,21,18,.18);
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --sans:"Inter",system-ui,-apple-system,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;color-scheme:light}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img,svg{display:block}
+button,input,select{font:inherit;color:inherit}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.num{font-family:var(--mono);font-feature-settings:"tnum";letter-spacing:-.02em}
+h1,h2,h3{text-wrap:balance;font-family:var(--display);letter-spacing:-.035em;line-height:1.02;margin:0;font-weight:600}
+h2{font-size:clamp(34px,5vw,56px)}
+h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
+p{margin:0}
+.lead{font-size:clamp(17px,1.6vw,19px);color:var(--ink-2);max-width:56ch}
+.eyebrow{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--green-2);background:var(--mint-2);padding:6px 12px;border-radius:99px}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--green-2)}
+.hl{background:linear-gradient(var(--mint),var(--mint)) 0 72%/100% 30% no-repeat;padding:0 .06em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 26px;border-radius:99px;font-weight:600;font-size:15.5px;border:0;cursor:pointer;transition:transform .15s,box-shadow .2s,background .2s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 8px 24px -8px rgba(14,26,47,.6)}
+.btn-primary:hover{background:var(--green-2);transform:translateY(-1px)}
+.btn-primary .arr{width:26px;height:26px;border-radius:50%;background:var(--mint);color:var(--green);display:grid;place-items:center;margin-right:-12px}
+.btn-ghost{background:transparent;border:1px solid var(--line-2)}
+.btn-ghost:hover{background:#fff}
+.note{font-size:13px;color:var(--mute)}
+section{padding:clamp(80px,11vw,140px) 0 0;scroll-margin-top:80px}
+.head{display:flex;flex-direction:column;gap:18px;max-width:760px;margin-bottom:48px}
+.head.center .eyebrow{align-self:center}.head.center{align-items:center;text-align:center;margin-left:auto;margin-right:auto}
+
+/* Header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:70;background:var(--paper)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;padding:12px 0;transition:background .2s,box-shadow .2s}
+header.scrolled{background:rgba(245,243,238,.82);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);box-shadow:0 1px 0 var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.03em}
+.logo .mark{width:32px;height:32px}
+.logo b{font-weight:600;color:var(--green-2)}
+nav.main{display:none;gap:30px;font-size:14.5px;color:var(--ink-2)}
+nav.main a:hover{color:var(--ink)}
+header .btn{height:42px;padding:0 18px;font-size:14px}
+@media(min-width:900px){nav.main{display:flex}}
+
+/* Hero */
+.hero{padding-top:clamp(36px,6vw,72px)}
+.hero-grid{display:grid;gap:56px;align-items:center}
+@media(min-width:1000px){.hero-grid{grid-template-columns:1fr 1.08fr;gap:48px}}
+.hero h1{font-size:clamp(46px,6.6vw,80px);margin:22px 0 22px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 14px}
+.facts{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:34px;padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2)}
+.facts span{display:flex;align-items:center;gap:8px}
+.facts svg{width:16px;height:16px;color:var(--green-2)}
+
+/* App mockup */
+.app{background:var(--card);border-radius:22px;box-shadow:var(--shadow),0 0 0 1px var(--line);overflow:hidden;font-size:13px;position:relative}
+.app-top{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:#fbfaf7}
+.app-top i{width:10px;height:10px;border-radius:50%;background:#e3e0d8}
+.app-top .url{margin-left:12px;font-size:12px;color:var(--mute);background:#f1efe9;padding:4px 12px;border-radius:8px}
+.app-top .demo{margin-left:auto;font-size:11px;color:var(--mute);border:1px solid var(--line);padding:2px 8px;border-radius:99px}
+.app-body{display:grid;grid-template-columns:150px 1fr;min-height:420px}
+.side{background:var(--green);color:#c9d3e6;padding:16px 10px;display:flex;flex-direction:column;gap:4px}
+.side .s-logo{display:flex;align-items:center;gap:8px;color:#fff;font-family:var(--display);font-weight:600;padding:0 8px 14px}
+.side .s-logo svg{width:20px;height:20px}
+.side a{padding:8px 10px;border-radius:9px;display:flex;align-items:center;gap:9px}
+.side a.on{background:rgba(255,255,255,.1);color:#fff}
+.side a i{width:6px;height:6px;border-radius:2px;background:currentColor;opacity:.6}
+.app-main{padding:20px;display:flex;flex-direction:column;gap:14px;background:#fbfaf7}
+.brief{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.brief small{display:flex;align-items:center;gap:6px;color:var(--mute);font-size:11.5px;margin-bottom:8px}
+.brief small i{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px var(--mint-2)}
+.brief p{font-family:var(--display);font-size:19px;line-height:1.35;letter-spacing:-.015em}
+.brief u{text-decoration:none;border-bottom:2px solid var(--mint);font-weight:600}
+.brief u.warn{border-color:var(--amber)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi span{display:block;font-size:11px;color:var(--mute)}
+.kpi b{white-space:nowrap;font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:-.03em}
+.mini-plan{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.mini-plan .row{display:grid;grid-template-columns:78px 1fr;align-items:center;gap:8px;height:26px;font-size:11.5px;color:var(--ink-2)}
+.track{position:relative;height:14px;background:#f2f0ea;border-radius:5px}
+.track b{position:absolute;top:0;bottom:0;border-radius:5px;background:var(--green-2)}
+.track b.m{background:var(--mint)}
+.track b.a{background:var(--amber)}
+@media(max-width:560px){.app-body{grid-template-columns:1fr}.side{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.brief p{font-size:17px}}
+.float{position:absolute;right:-14px;bottom:-22px;background:var(--ink);color:#fff;border-radius:14px;padding:12px 14px;font-size:12.5px;box-shadow:var(--shadow);max-width:240px;display:none}
+.float b{color:var(--mint)}
+@media(min-width:1000px){.float{display:block}}
+.hero-visual{position:relative}
+.hero-visual:before{content:"";position:absolute;inset:-40px -30px;background:radial-gradient(closest-side,rgba(245,196,81,.35),transparent 70%);z-index:-1;filter:blur(10px)}
+
+/* Compare */
+.compare{display:grid;gap:16px}
+@media(min-width:860px){.compare{grid-template-columns:1fr 1fr}}
+.cmp{border-radius:var(--r);padding:30px;border:1px solid var(--line)}
+.cmp.old{background:var(--paper-2)}
+.cmp.new{background:var(--green);color:#e7ecf6;border:0}
+.cmp h3{margin-bottom:18px}
+.cmp ul{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.cmp li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.cmp li svg{flex:none;width:20px;height:20px;margin-top:2px}
+.cmp.old li svg{color:var(--red)}
+.cmp.new li svg{color:var(--mint)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chip{font-size:12.5px;padding:6px 11px;border-radius:99px;background:#fff;border:1px solid var(--line)}
+.cmp.old .chip{text-decoration:line-through;color:var(--mute)}
+
+/* Video */
+.video{position:relative;aspect-ratio:16/9;border-radius:24px;overflow:hidden;background:var(--green);box-shadow:var(--shadow)}
+.video .bg{position:absolute;inset:0;background:radial-gradient(60% 80% at 70% 30%,rgba(245,196,81,.28),transparent 60%),radial-gradient(50% 60% at 10% 90%,rgba(242,163,58,.18),transparent 60%)}
+.video .wm{position:absolute;left:6%;top:9%;color:rgba(255,255,255,.08);font-family:var(--display);font-weight:600;font-size:clamp(40px,9vw,120px);letter-spacing:-.05em}
+.video button{position:absolute;inset:0;width:100%;border:0;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff}
+.play{width:84px;height:84px;border-radius:50%;background:var(--mint);display:grid;place-items:center;box-shadow:0 0 0 10px rgba(245,196,81,.2),0 0 0 22px rgba(245,196,81,.08);transition:transform .2s}
+.video button:hover .play{transform:scale(1.06)}
+.play svg{width:30px;height:30px;color:var(--green);margin-left:4px}
+.video .vnote{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);padding:10px 14px;border-radius:12px;font-size:13.5px;text-align:center}
+.video iframe,.video video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.chapters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.chapters div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
+.chapters b{display:block;font-family:var(--mono);font-weight:500;font-size:12px;color:var(--green-2);margin-bottom:2px}
+
+/* Bento */
+.bento{display:grid;gap:16px}
+@media(min-width:900px){.bento{grid-template-columns:repeat(6,1fr)}.b-a{grid-column:span 3}.b-b{grid-column:span 3}.b-c{grid-column:span 4}.b-d{grid-column:span 2}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.card p{color:var(--ink-2);font-size:15px}
+.card .demo{margin-top:auto;padding-top:20px}
+.panel{background:#fbfaf7;border:1px solid var(--line);border-radius:14px;padding:14px}
+.plan .days{display:grid;grid-template-columns:86px repeat(7,1fr);font-size:11px;color:var(--mute);margin-bottom:6px}
+.plan .days span{text-align:center}
+.plan .r{display:grid;grid-template-columns:86px 1fr;align-items:center;height:30px;font-size:12px}
+.plan .t{position:relative;height:16px;background:#efede6;border-radius:6px}
+.plan .t b{position:absolute;top:0;bottom:0;border-radius:6px;background:var(--green-2)}
+.plan .t b.try{background:repeating-linear-gradient(45deg,rgba(226,85,63,.25) 0 6px,rgba(226,85,63,.45) 6px 12px);outline:1.5px dashed var(--red)}
+.plan .alt{margin-top:10px;font-size:12.5px;color:var(--ink-2);display:flex;gap:8px;align-items:center}
+.plan .alt i{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.plan .alt b{background:var(--mint-2);color:var(--green-2);padding:2px 8px;border-radius:99px;font-weight:600}
+.bars .r{display:grid;grid-template-columns:76px 1fr 88px;gap:10px;align-items:center;height:28px;font-size:12px;color:var(--ink-2)}
+.bars .t{height:10px;border-radius:5px;background:#efede6;overflow:hidden}
+.bars .t b{display:block;height:100%;border-radius:5px;background:var(--green-2)}
+.bars .t b.neg{background:var(--red)}
+.bars .v{font-family:var(--mono);font-size:11.5px;text-align:right;white-space:nowrap}
+.bars .hdr{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute);margin-bottom:6px}
+.chat{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.45}
+.msg.q{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:4px}
+.msg.a{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.a b{color:var(--green-2)}
+.src{font-size:11px;color:var(--mute);display:flex;gap:6px;align-items:center}
+.src i{width:6px;height:6px;border-radius:50%;background:var(--mint)}
+.small-grid{display:grid;gap:16px;margin-top:16px}
+@media(min-width:700px){.small-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.small-grid{grid-template-columns:repeat(3,1fr)}}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;gap:16px}
+.ico{flex:none;width:42px;height:42px;border-radius:12px;background:var(--mint-2);color:var(--green-2);display:grid;place-items:center}
+.ico svg{width:21px;height:21px}
+.mini h3{font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mini p{font-size:14.5px;color:var(--ink-2);margin-top:4px}
+.soon{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0;color:#8a5a12;background:#fbe8c8;padding:2px 8px;border-radius:99px}
+
+/* Steps */
+.steps{display:grid;gap:16px;counter-reset:s}
+@media(min-width:900px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:28px;position:relative}
+.step .n{font-family:var(--mono);font-size:13px;color:var(--green-2);display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.step .n:after{content:"";flex:1;height:1px;background:var(--line-2)}
+.step h3{margin-bottom:10px}
+.step p{color:var(--ink-2);font-size:15px}
+.step .tag{display:inline-block;margin-top:16px;font-size:12.5px;color:var(--mute)}
+
+/* Split (Excel) */
+.split{display:grid;gap:40px;align-items:center}
+@media(min-width:960px){.split{grid-template-columns:1fr 1.05fr;gap:64px}}
+.checks{list-style:none;padding:0;margin:26px 0 30px;display:grid;gap:12px}
+.checks li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px}
+.checks svg{flex:none;width:22px;height:22px;color:var(--green-2)}
+.bookings .tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.bookings .tabs span{font-size:12.5px;padding:6px 12px;border-radius:99px;color:var(--ink-2)}
+.bookings .tabs span.on{background:var(--ink);color:#fff}
+.bk{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 4px;border-top:1px solid var(--line);font-size:13.5px}
+.bk:first-of-type{border-top:0}
+.bk small{grid-column:1;color:var(--mute);font-size:12px}
+.st{grid-row:span 2;align-self:center;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:99px}
+.st.go{background:var(--mint-2);color:var(--green-2)}
+.st.ev{background:#e9e4ff;color:#4b3aa8}
+.st.rq{background:#fbe8c8;color:#8a5a12}
+.st.dn{background:#eceae4;color:var(--ink-2)}
+
+/* KI dark band */
+.dark{background:var(--green);color:#e7ecf6;border-radius:32px;padding:clamp(40px,6vw,72px);margin-top:clamp(80px,11vw,140px);position:relative;overflow:hidden}
+.dark:before{content:"";position:absolute;right:-10%;top:-30%;width:60%;height:120%;background:radial-gradient(closest-side,rgba(245,196,81,.22),transparent);pointer-events:none}
+.dark h2{color:#fff}
+.dark .lead{color:#b9c4da}
+.dark .hl{background-image:linear-gradient(rgba(245,196,81,.55),rgba(245,196,81,.55))}
+.dark .grid{display:grid;gap:40px;align-items:center;position:relative}
+@media(min-width:960px){.dark .grid{grid-template-columns:1fr 1fr}}
+.dark .checks svg{color:var(--mint)}
+.dark .chat .msg.a{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#e7ecf6}
+.dark .chat .msg.a b{color:var(--mint)}
+.dark .chat .msg.q{background:#fff;color:var(--ink)}
+.dark .src{color:#98a6c2}
+.dark .act{display:flex;gap:8px;margin-top:6px}
+.dark .act span{font-size:12px;padding:6px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.2)}
+.dark .act span.ok{background:var(--mint);color:var(--green);border-color:var(--mint);font-weight:600}
+
+/* Security */
+.sec{display:grid;gap:16px}
+@media(min-width:700px){.sec{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1050px){.sec{grid-template-columns:repeat(4,1fr)}}
+.sec .card h3{font-size:18px}
+
+/* Pricing */
+.prices{display:grid;gap:16px;align-items:stretch}
+@media(min-width:960px){.prices{grid-template-columns:repeat(3,1fr)}}
+.price{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:30px;display:flex;flex-direction:column}
+.price.pop{background:var(--ink);color:#fff;border:0;box-shadow:var(--shadow)}
+.price .top{display:flex;justify-content:space-between;align-items:center}
+.price .badge{font-size:11.5px;font-weight:600;background:var(--mint);color:var(--green);padding:4px 10px;border-radius:99px}
+.price .amt{font-family:var(--display);font-size:38px;letter-spacing:-.04em;margin:18px 0 4px;font-weight:600}
+.price .for{color:var(--mute);font-size:14.5px}
+.price.pop .for{color:#a6afc2}
+.price ul{list-style:none;padding:0;margin:24px 0 28px;display:grid;gap:11px;font-size:14.5px}
+.price li{display:flex;gap:10px}
+.price li svg{flex:none;width:18px;height:18px;color:var(--green-2);margin-top:2px}
+.price.pop li svg{color:var(--mint)}
+.price .btn{margin-top:auto;width:100%}
+.price.pop .btn-primary{background:var(--mint);color:var(--green)}
+.price .btn-ghost{border-color:var(--line-2)}
+.price-note{text-align:center;margin-top:20px}
+
+/* FAQ */
+.faq{max-width:820px;margin:0 auto;display:grid;gap:10px}
+details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0 22px;transition:background .2s}
+details[open]{box-shadow:var(--shadow)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:20px 0;font-weight:600;font-size:16.5px}
+summary::-webkit-details-marker{display:none}
+summary .pm{flex:none;width:28px;height:28px;border-radius:50%;background:var(--paper-2);display:grid;place-items:center;transition:transform .25s,background .2s}
+details[open] summary .pm{transform:rotate(45deg);background:var(--mint)}
+details p{padding:0 0 22px;color:var(--ink-2);max-width:66ch}
+
+/* Waitlist */
+.wl{background:var(--card);border-radius:32px;border:1px solid var(--line);box-shadow:var(--shadow);display:grid;overflow:hidden}
+@media(min-width:960px){.wl{grid-template-columns:.9fr 1.1fr}}
+.wl-left{background:var(--green);color:#e7ecf6;padding:clamp(32px,5vw,56px);display:flex;flex-direction:column;gap:20px;position:relative;overflow:hidden}
+.wl-left:after{content:"";position:absolute;left:-20%;bottom:-40%;width:90%;height:90%;background:radial-gradient(closest-side,rgba(245,196,81,.25),transparent)}
+.wl-left h2{color:#fff}
+.wl-left .lead{color:#b9c4da}
+.wl-left .checks{margin:6px 0 0}
+.wl-left .checks svg{color:var(--mint)}
+.wl-right{padding:clamp(28px,5vw,56px)}
+form.grid{display:grid;gap:14px}
+@media(min-width:620px){form.grid{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.f input,.f select{height:50px;border-radius:12px;border:1px solid var(--line-2);background:#fbfaf7;padding:0 14px;font-size:15.5px;outline:none;transition:border .15s,box-shadow .15s;appearance:none;-webkit-appearance:none}
+.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%233b4541' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.f input:focus,.f select:focus{border-color:var(--green-2);box-shadow:0 0 0 4px var(--mint-2);background:#fff}
+.consent{display:flex;gap:12px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);cursor:pointer}
+.consent input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--green)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+form .btn{width:100%}
+.err{color:var(--red);font-size:13.5px;text-align:center}
+.done{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:30px 0}
+.done .ok{width:56px;height:56px;border-radius:50%;background:var(--mint);display:grid;place-items:center;color:var(--green)}
+.done h3{font-size:26px}
+.done p{color:var(--ink-2);max-width:44ch}
+
+/* Footer */
+footer{padding:clamp(80px,10vw,120px) 0 max(28px,env(safe-area-inset-bottom))}
+.foot{display:grid;gap:36px;padding-top:40px;border-top:1px solid var(--line)}
+@media(min-width:800px){.foot{grid-template-columns:2fr 1fr 1fr}}
+.foot h4{font-size:13px;color:var(--mute);font-weight:500;margin:0 0 12px}
+.foot nav{display:flex;flex-direction:column;gap:9px;font-size:14.5px}
+.foot nav a:hover{color:var(--green-2)}
+.foot .claim{font-family:var(--display);font-size:clamp(28px,3.4vw,40px);letter-spacing:-.035em;line-height:1.05;margin:18px 0 22px;max-width:16ch}
+.legal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:40px;font-size:13px;color:var(--mute)}
+
+/* Mobile sticky CTA */
+.mcta{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom));z-index:60;transform:translateY(140%);transition:transform .3s}
+.mcta.show{transform:none}
+.mcta .btn{width:100%;box-shadow:0 12px 30px -8px rgba(14,26,47,.6)}
+@media(min-width:900px){.mcta{display:none}}
+
+/* Reveal */
+
+/* ===== Animationen (V3) ===== */
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes riseIn{from{opacity:0;transform:translateY(40px) rotateX(8deg) scale(.97)}to{opacity:1;transform:none}}
+@keyframes sweep{from{background-size:0% 100%}to{background-size:100% 100%}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pop{0%{opacity:0;transform:translateY(10px) scale(.92)}70%{transform:translateY(-2px) scale(1.02)}100%{opacity:1;transform:none}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(245,196,81,.45),0 0 0 0 rgba(245,196,81,.25)}100%{box-shadow:0 0 0 18px rgba(245,196,81,0),0 0 0 36px rgba(245,196,81,0)}}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-4%,3%) scale(1.08)}100%{transform:translate(0,0) scale(1)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes shine{from{transform:translateX(-120%) skewX(-20deg)}to{transform:translateX(320%) skewX(-20deg)}}
+@keyframes dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@keyframes strike{from{background-size:0 1.5px}to{background-size:100% 1.5px}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,196,81,.6)}100%{box-shadow:0 0 0 8px rgba(245,196,81,0)}}
+@keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes glow{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* Fortschrittsbalken oben */
+.progress{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);height:3px;z-index:80;background:linear-gradient(90deg,var(--mint),var(--green-2));transform-origin:0 50%;transform:scaleX(var(--p,0));pointer-events:none}
+
+@media (prefers-reduced-motion:no-preference){
+  /* Hero-Einstieg als Sequenz */
+  .hero .eyebrow{animation:rise .7s .05s cubic-bezier(.2,.8,.2,1) both}
+  .hero h1 .w{display:inline-block;animation:rise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.12s + var(--i)*.07s)}
+  .hero .lead{animation:rise .8s .55s cubic-bezier(.2,.8,.2,1) both}
+  .hero .ctas{animation:rise .8s .68s cubic-bezier(.2,.8,.2,1) both}
+  .hero .note{animation:rise .8s .78s both}
+  .hero .facts span{animation:rise .6s both;animation-delay:calc(.85s + var(--i)*.08s)}
+  .hero-visual{perspective:1400px}
+  .hero-visual .app{animation:riseIn 1.1s .35s cubic-bezier(.2,.8,.2,1) both;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+  .hero-visual:before{animation:drift 12s ease-in-out infinite}
+  .hero .brief u{background:linear-gradient(var(--mint),var(--mint)) 0 100%/0% 2px no-repeat;border-bottom-color:transparent;animation:uline .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(1.1s + var(--i)*.18s)}
+  @keyframes uline{to{background-size:100% 3px}}
+  .hero .brief u.warn{background-image:linear-gradient(var(--amber),var(--amber))}
+  .hero .kpi{animation:pop .6s both;animation-delay:calc(1.3s + var(--i)*.09s)}
+  .hero .track b{transform-origin:0 50%;animation:grow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(1.5s + var(--i)*.07s)}
+  .float{animation:pop .6s 2.3s both,bob 4s 3s ease-in-out infinite}
+  .side a.on i{animation:pulse 1.8s 2s infinite;border-radius:50%;opacity:1;background:var(--mint)}
+
+  /* Markierung zieht sich durch */
+  .hl{background:linear-gradient(var(--mint),var(--mint)) 0 72%/100% 30% no-repeat;padding:0 .06em}
+  .hero .hl{background-size:0% 30%;animation:hlsweep .9s .9s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes hlsweep{to{background-size:100% 30%}}
+  .dark .hl{background-image:linear-gradient(rgba(245,196,81,.55),rgba(245,196,81,.55))}
+
+  /* Buttons */
+  .btn{position:relative;overflow:hidden;isolation:isolate}
+  .btn-primary:after{content:"";position:absolute;inset:0 auto 0 0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);transform:translateX(-120%) skewX(-20deg);z-index:-1}
+  .btn-primary:hover:after{animation:shine .8s ease}
+  .btn .arr{transition:transform .25s}
+  .btn:hover .arr{transform:translateX(4px)}
+  .btn:active{transform:scale(.97)}
+
+  /* Karten: Anheben + Licht folgt der Maus */
+  .card,.mini,.step,.price,.chapters div,.cmp{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s}
+  .card:hover,.mini:hover,.step:hover,.price:hover,.chapters div:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--line-2)}
+  .spot{position:relative}
+  .spot:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(245,196,81,.16),transparent 45%);z-index:0}
+  .spot:hover:before{opacity:1}
+  .spot>*{position:relative;z-index:1}
+  .ico{transition:transform .35s cubic-bezier(.2,.8,.2,1),background .3s}
+  .mini:hover .ico,.card:hover .ico{transform:rotate(-8deg) scale(1.08);background:var(--mint)}
+
+  /* Video */
+  .video .bg{animation:drift 14s ease-in-out infinite}
+  .play{animation:ring 2.2s ease-out infinite}
+
+  /* Doppelbuchung blinkt, Alternativen poppen */
+  .plan .t b.try{animation:blink 1.4s ease-in-out infinite}
+  .plan .alt b{display:inline-block;animation:pop .5s both}
+  .plan .alt b+b{animation-delay:.12s}
+
+  /* Tippen-Punkte */
+  .typing{display:inline-flex;gap:4px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;border-bottom-left-radius:4px;align-self:flex-start}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--mute);animation:dot 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  .dark .typing{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+  .dark .typing i{background:#98a6c2}
+  .chat .msg.show{animation:pop .45s cubic-bezier(.2,.8,.2,1) both}
+
+  /* KI-Band leuchtet */
+  .dark:before{animation:glow 6s ease-in-out infinite}
+  .dark .act span.ok{animation:pulse 1.8s infinite}
+
+  /* Laufband */
+  .ticker .track-x{animation:ticker 38s linear infinite}
+  .ticker:hover .track-x{animation-play-state:paused}
+
+  /* FAQ weich aufklappen */
+  .faq{interpolate-size:allow-keywords}
+  details::details-content{block-size:0;overflow:hidden;transition:block-size .35s cubic-bezier(.2,.8,.2,1),content-visibility .35s allow-discrete}
+  details[open]::details-content{block-size:auto}
+  summary:hover .pm{background:var(--mint-2)}
+
+  /* Formular */
+  .f input,.f select{transition:border .2s,box-shadow .2s,background .2s,transform .2s}
+  .f input:focus,.f select:focus{transform:translateY(-1px)}
+  .done .ok{animation:pop .6s both}
+}
+
+/* Scroll-Einblendungen: im Ruhezustand sichtbar, mit Scroll-Timeline animiert */
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    .rv{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+    .head .hl,.split .hl{background-size:0% 30%;animation:hlsweep linear forwards;animation-timeline:view();animation-range:entry 40% cover 35%}
+    .bars .t b{transform-origin:0 50%;animation:grow linear both;animation-timeline:view();animation-range:entry 20% cover 40%}
+    .step .n:after{transform-origin:0 50%;animation:draw linear both;animation-timeline:view();animation-range:entry 30% cover 40%}
+    .cmp.old .chip{text-decoration:none;background-image:linear-gradient(var(--red),var(--red));background-repeat:no-repeat;background-position:0 55%;background-size:0 1.5px;animation:strike linear forwards;animation-timeline:view();animation-range:entry 50% cover 45%}
+    .cmp li{animation:rise linear both;animation-timeline:view();animation-range:entry 10% cover 30%}
+    .price{animation:riseIn linear both;animation-timeline:view();animation-range:entry 0% cover 30%}
+  }
+}
+/* Laufband (statisch lesbar ohne Animation) */
+.ticker{overflow:hidden;border-block:1px solid var(--line);margin-top:clamp(56px,7vw,90px);padding-block:18px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ticker .track-x{display:flex;gap:44px;width:max-content;font-family:var(--display);font-size:clamp(20px,2.4vw,28px);letter-spacing:-.02em;color:var(--ink-2);white-space:nowrap}
+.ticker .track-x span{display:flex;align-items:center;gap:44px}
+.ticker .track-x span:after{content:"";width:8px;height:8px;border-radius:50%;background:var(--mint)}
+.bars .t b{width:var(--w)}
+
+</style>
+
+<header id="top">
+  <div class="wrap bar">
+    <a href="#top" class="logo" aria-label="editionrent.ai Startseite">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#0e1a2f"/><path d="M18 44 L30 20 M30 44 L42 20" stroke="#f5c451" stroke-width="6" stroke-linecap="round"/><circle cx="46" cy="42" r="4" fill="#f5c451"/></svg>
+      <span>editionrent<b>.ai</b></span>
+    </a>
+    <nav class="main" aria-label="Seitenbereiche">
+      <a href="#funktionen">Funktionen</a><a href="#ablauf">Ablauf</a><a href="#ki">KI</a><a href="#sicherheit">Sicherheit</a><a href="#tarife">Tarife</a><a href="#fragen">Fragen</a>
+    </nav>
+    <a href="#warteliste" class="btn btn-primary">Zur Warteliste</a>
+  </div>
+</header>
+
+<div class="progress" aria-hidden="true"></div>
+<main>
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div class="rv">
+      <span class="eyebrow"><i></i>Early Access für Autovermietungen in der Schweiz und Deutschland</span>
+      <h1><span class="w" style="--i:0">Weniger</span> <span class="w" style="--i:1">Chaos.</span><br><span class="w" style="--i:2">Mehr</span> <span class="w" style="--i:3"><span class="hl">Vermietung.</span></span></h1>
+      <p class="lead">editionrent.ai bündelt Flotte, Buchungen, Kunden und Finanzen in einem System und sagt dir jeden Morgen, was heute zu tun ist.</p>
+      <div class="ctas">
+        <a href="#warteliste" class="btn btn-primary">Platz auf der Warteliste sichern <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a href="#video" class="btn btn-ghost">Video ansehen</a>
+      </div>
+      <p class="note">Kostenlos eintragen. Keine Zahlungsdaten.</p>
+      <div class="facts">
+        <span style="--i:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Preise in CHF und EUR</span>
+        <span style="--i:1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>MWST für CH und DE</span>
+        <span style="--i:2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Daten je Betrieb getrennt</span>
+        <span style="--i:3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Server in Frankfurt</span>
+      </div>
+    </div>
+
+    <div class="hero-visual rv">
+      <div class="app" data-tilt role="img" aria-label="Beispielansicht des Dashboards von editionrent.ai">
+        <div class="app-top"><i></i><i></i><i></i><span class="url">app.editionrent.ai/heute</span><span class="demo">Beispieldaten</span></div>
+        <div class="app-body">
+          <div class="side">
+            <div class="s-logo"><svg viewBox="0 0 64 64"><path d="M18 44 L30 20 M30 44 L42 20" stroke="#f5c451" stroke-width="7" stroke-linecap="round"/><circle cx="46" cy="42" r="5" fill="#f5c451"/></svg>editionrent</div>
+            <a class="on"><i></i>Heute</a><a><i></i>Belegung</a><a><i></i>Buchungen</a><a><i></i>Flotte</a><a><i></i>Kunden</a><a><i></i>Finanzen</a><a><i></i>Assistent</a>
+          </div>
+          <div class="app-main">
+            <div class="brief">
+              <small><i></i>Daily Briefing · Freitag, 7:45</small>
+              <p>Guten Morgen. Heute stehen <u style="--i:0">3 Übergaben</u> und <u style="--i:1">2 Rückgaben</u> an. <u style="--i:2" class="warn">2 Zahlungen sind offen.</u> Am Wochenende sind noch <u style="--i:3">4 von 14</u> Fahrzeugen frei.</p>
+            </div>
+            <div class="kpis">
+              <div class="kpi" style="--i:0"><span>Unterwegs</span><b data-count="9" data-fmt="x / 14">9 / 14</b></div>
+              <div class="kpi" style="--i:1"><span>Umsatz Oktober</span><b data-count="236787" data-fmt="CHF x">CHF 236’787</b></div>
+              <div class="kpi" style="--i:2"><span>Offen</span><b data-count="2580" data-fmt="CHF x">CHF 2’580</b></div>
+              <div class="kpi" style="--i:3"><span>Frei am WE</span><b data-count="4" data-fmt="x">4</b></div>
+            </div>
+            <div class="mini-plan">
+              <div class="row"><span>Urus</span><div class="track"><b style="--i:0;left:4%;width:38%"></b><b class="m" style="--i:1;left:55%;width:30%"></b></div></div>
+              <div class="row"><span>Huracán EVO</span><div class="track"><b style="--i:2;left:20%;width:46%"></b></div></div>
+              <div class="row"><span>G 63</span><div class="track"><b class="a" style="--i:3;left:0;width:22%"></b><b style="--i:4;left:40%;width:50%"></b></div></div>
+              <div class="row"><span>911 Turbo S</span><div class="track"><b class="m" style="--i:5;left:62%;width:34%"></b></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="float">Rückgabe G 63 ist <b>überfällig</b>. Kunde anrufen?</div>
+    </div>
+  </div>
+</div>
+
+<div class="ticker" aria-hidden="true"><div class="track-x"><span>Daily Briefing</span><span>Belegungsplan</span><span>Doppelbuchungen ausgeschlossen</span><span>Deckungsbeitrag je Fahrzeug</span><span>KI mit Quelle</span><span>Kautionen im Blick</span><span>CHF und EUR</span><span>MWST CH und DE</span><span>Server in Frankfurt</span><span>Rollen fürs Team</span><span>Daily Briefing</span><span>Belegungsplan</span><span>Doppelbuchungen ausgeschlossen</span><span>Deckungsbeitrag je Fahrzeug</span><span>KI mit Quelle</span><span>Kautionen im Blick</span><span>CHF und EUR</span><span>MWST CH und DE</span><span>Server in Frankfurt</span><span>Rollen fürs Team</span></div></div>
+<!-- VORHER / NACHHER -->
+<section id="warum">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="eyebrow"><i></i>Warum</span>
+      <h2>Fünf Werkzeuge raus. <span class="hl">Ein System</span> rein.</h2>
+      <p class="lead">Kein Flickenteppich aus Excel, WhatsApp und Kalender. Ein System, das deine Fahrzeuge, Buchungen und Zahlen kennt.</p>
+    </div>
+    <div class="compare">
+      <div class="cmp old rv">
+        <div class="chips"><span class="chip">Excel</span><span class="chip">WhatsApp</span><span class="chip">Zettelkalender</span><span class="chip">Word-Verträge</span><span class="chip">Banking-App</span></div>
+        <h3>Heute</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Wer hat das Auto am Samstag? Erst drei Stellen durchsuchen.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Doppelbuchungen fallen erst bei der Übergabe auf.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Offene Kautionen und Zahlungen gehen unter.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Welches Auto Geld verdient, weiss niemand genau.</li>
+        </ul>
+      </div>
+      <div class="cmp new rv">
+        <div class="chips"><span class="chip" style="background:var(--mint);border:0;color:var(--green);font-weight:600">editionrent.ai</span></div>
+        <h3 style="color:#fff">Mit editionrent.ai</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Ein Belegungsplan für Tag, Woche und Monat.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Jede Buchung wird sofort geprüft, mit freien Alternativen.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Kautionen und offene Zahlungen im Daily Briefing.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Deckungsbeitrag je Fahrzeug, mit offengelegter Rechnung.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section id="video">
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i></i>Video</span>
+      <h2>So sieht dein <span class="hl">Alltag</span> mit editionrent.ai aus</h2>
+      <p class="lead">Ein kurzer Rundgang: vom Überblick am Morgen über die erste Buchung bis zur Rückgabe am Abend.</p>
+    </div>
+    <div class="video rv">
+      <div class="bg"></div>
+      <div class="wm">editionrent.ai</div>
+      <button type="button" aria-label="Video folgt in Kürze">
+        <span class="play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></span>
+        <span class="vlabel" style="font-weight:600">Video folgt in Kürze</span>
+      </button>
+    </div>
+    <div class="chapters rv">
+      <div><b>07:45</b>Daily Briefing lesen</div>
+      <div><b>09:10</b>Buchung anlegen, Doppelbuchung verhindert</div>
+      <div><b>14:30</b>Übergabe mit Kaution</div>
+      <div><b>18:00</b>Rückgabe und Abrechnung</div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNKTIONEN -->
+<section id="funktionen">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="eyebrow"><i></i>Funktionen</span>
+      <h2>Alles, was eine Vermietung <span class="hl">jeden Tag</span> braucht</h2>
+      <p class="lead">Vom ersten Kaffee bis zur letzten Rückgabe. Jede Zahl führt direkt zur Aufgabe.</p>
+    </div>
+
+    <div class="bento">
+      <div class="spot card b-a rv">
+        <h3>Jeden Morgen ein Überblick</h3>
+        <p>Das Daily Briefing sagt dir in einem Satz, was heute ansteht und wo es brennt. Jede Zahl führt direkt zur Aufgabe.</p>
+        <div class="demo"><div class="brief" style="background:#fbfaf7">
+          <small><i></i>Guten Morgen. Freitag, 7:45</small>
+          <p style="font-size:17px">Heute stehen <u>3 Übergaben</u> und <u>2 Rückgaben</u> an. <u class="warn">1 Rückgabe ist überfällig.</u> Am Wochenende sind noch <u>4 Fahrzeuge</u> frei.</p>
+        </div></div>
+      </div>
+
+      <div class="spot card b-b rv">
+        <h3>Doppelbuchungen sind ausgeschlossen</h3>
+        <p>Der Belegungsplan prüft jede Buchung sofort. Ist ein Fahrzeug belegt, schlägt das System passende freie Alternativen vor.</p>
+        <div class="demo panel plan">
+          <div class="days"><span></span><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+          <div class="r"><span>Huracán EVO</span><div class="t"><b style="left:8%;width:42%"></b><b style="left:64%;width:30%"></b></div></div>
+          <div class="r"><span>G 63</span><div class="t"><b style="left:20%;width:36%"></b><b class="try" style="left:44%;width:28%"></b></div></div>
+          <div class="r"><span>911 Turbo S</span><div class="t"><b style="left:0;width:26%"></b><b style="left:60%;width:36%"></b></div></div>
+          <div class="alt"><i></i>Schon gebucht. Frei im gleichen Zeitraum: <b>Urus</b><b>R8</b></div>
+        </div>
+      </div>
+
+      <div class="spot card b-c rv">
+        <h3>Du siehst, welches Auto Geld verdient</h3>
+        <p>Umsatz, Kosten, Auslastung und Deckungsbeitrag je Fahrzeug, mit offengelegter Rechnung. Schwache Fahrzeuge fallen sofort auf.</p>
+        <div class="demo panel bars" data-bars>
+          <div class="hdr"><span>Deckungsbeitrag je Fahrzeug</span><span>dieser Monat · Beispieldaten</span></div>
+          <div class="r"><span>Ghost</span><div class="t"><b style="--w:94%"></b></div><span class="v">CHF 18’400</span></div>
+          <div class="r"><span>Huracán</span><div class="t"><b style="--w:82%"></b></div><span class="v">CHF 16’050</span></div>
+          <div class="r"><span>488 Spider</span><div class="t"><b style="--w:76%"></b></div><span class="v">CHF 14’900</span></div>
+          <div class="r"><span>G 63</span><div class="t"><b style="--w:58%"></b></div><span class="v">CHF 11’300</span></div>
+          <div class="r"><span>GT-R</span><div class="t"><b style="--w:34%"></b></div><span class="v">CHF 6’700</span></div>
+          <div class="r"><span>C7 Z06</span><div class="t"><b class="neg" style="--w:14%"></b></div><span class="v" style="color:var(--red)">CHF −1’200</span></div>
+        </div>
+      </div>
+
+      <div class="spot card b-d rv">
+        <h3>Fragen statt suchen</h3>
+        <p>Frag in normaler Sprache. Der Assistent antwortet aus deinen echten Daten und nennt die Quelle.</p>
+        <div class="demo chat" data-chat>
+          <div class="msg q">Habt ihr Samstag einen Lamborghini frei?</div>
+          <div class="msg a">Ja, zwei: <b>Urus</b> für CHF 990 und <b>Huracán EVO</b> für CHF 1’490 pro Tag.</div>
+          <div class="src"><i></i>Quelle: Verfügbarkeit, Flotte</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="small-grid">
+      <div class="spot mini rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V6a2 2 0 0 1 2-2h2M17 4h2a2 2 0 0 1 2 2v2M21 16v2a2 2 0 0 1-2 2h-2M7 20H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="9" width="10" height="6" rx="1"/></svg></span><div><h3>Fahrzeugausweis per Foto <span class="soon">Bald</span></h3><p>Marke, Typ, Fahrgestell- und Stammnummer werden aus dem Foto des Ausweises übernommen. Kein Abtippen mehr.</p></div></div>
+      <div class="spot mini rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><div><h3>Verträge und Rechnungen als PDF <span class="soon">Bald</span></h3><p>Direkt aus der Buchung erstellt und per E-Mail verschickt, auf Deutsch, Französisch, Italienisch und Englisch.</p></div></div>
+      <div class="spot mini rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-1 4-6 6-6s1 5 3 5 3-4 5-4 2 2 4 2"/><path d="M3 21h18"/></svg></span><div><h3>Digitale Unterschrift <span class="soon">Bald</span></h3><p>Der Kunde unterschreibt bei der Übergabe auf dem Tablet oder später per Link.</p></div></div>
+      <div class="spot mini rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14l-1.5-5.5A2 2 0 0 0 15.6 10H8.4a2 2 0 0 0-1.9 1.5z"/><circle cx="8" cy="17.5" r="1.8"/><circle cx="16" cy="17.5" r="1.8"/></svg></span><div><h3>Fahrzeugakte</h3><p>Status, Auslastung, Buchungen, Kosten und Kunden pro Fahrzeug auf einen Blick.</p></div></div>
+      <div class="spot mini rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l6-4v17M9 21V10l6-3v14M15 21V12l6-2v11M2 21h20"/></svg></span><div><h3>Mehrere Firmen, ein Konto</h3><p>Standorte oder Firmen getrennt führen und mit einem Klick wechseln. Rollen für jedes Teammitglied.</p></div></div>
+      <div class="spot mini rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="14" height="10" rx="1.5"/><path d="M6 18h6"/><rect x="17" y="8" width="5" height="12" rx="1.2"/></svg></span><div><h3>Auf jedem Gerät</h3><p>Läuft im Browser auf Computer, Tablet und Handy. Keine Installation, keine Updates.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABLAUF -->
+<section id="ablauf">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="eyebrow"><i></i>Ablauf</span>
+      <h2>In drei Schritten <span class="hl">startklar</span></h2>
+      <p class="lead">Kein langes Projekt. Du arbeitest ab dem ersten Tag mit deinen eigenen Fahrzeugen und Buchungen.</p>
+    </div>
+    <div class="steps">
+      <div class="spot step rv"><div class="n">01</div><h3>Eintragen</h3><p>Du trägst deinen Betrieb auf der Warteliste ein. Wir schalten in der Reihenfolge der Anmeldung frei.</p><span class="tag">Dauert eine Minute</span></div>
+      <div class="spot step rv"><div class="n">02</div><h3>Flotte erfassen</h3><p>Fahrzeuge manuell anlegen, per Foto des Fahrzeugausweises einlesen oder per Excel-Import übernehmen. Preise und laufende Buchungen kommen dazu.</p><span class="tag">Wir helfen beim Übernehmen</span></div>
+      <div class="spot step rv"><div class="n">03</div><h3>Mit dem Team starten</h3><p>Mitarbeitende lädst du per E-Mail ein und vergibst Rollen. Ab dann läuft der Tag über ein System statt über fünf.</p><span class="tag">Rollen für Owner, Sales, Flotte und Team</span></div>
+    </div>
+
+    <div class="split" style="margin-top:clamp(64px,8vw,110px)">
+      <div class="rv">
+        <h2 style="font-size:clamp(30px,4vw,46px)">Schluss mit Excel, WhatsApp und <span class="hl">Zettelkalender</span></h2>
+        <p class="lead" style="margin-top:18px">Buchungen, Kautionen, Zahlungen und Rückgaben stehen an einem Ort. Dein Team sieht dieselben Zahlen, und jede Änderung ist nachvollziehbar.</p>
+        <ul class="checks">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Belegungsplan für Tag, Woche und Monat</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Preise mit Wochentarif, Extras und MWST automatisch</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Kautionen und offene Zahlungen im Blick</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Rollen für Owner, Sales, Flotte und Team</li>
+        </ul>
+        <a href="#warteliste" class="btn btn-primary">Platz sichern</a>
+      </div>
+      <div class="spot card bookings rv" style="padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-family:var(--display);font-size:18px;letter-spacing:-.02em">Buchungen, Woche 43</b><span class="note">Beispieldaten</span></div>
+        <div class="tabs"><span>Flotte</span><span class="on">Buchungen</span><span>Zahlungen</span><span>Kunden</span></div>
+        <div class="bk"><span><b>Urus</b> · Lamborghini Urus</span><span class="st go">Unterwegs</span><small>S. Meier</small></div>
+        <div class="bk"><span><b>Ghost</b> · Rolls-Royce Ghost</span><span class="st ev">Event</span><small>Weber · Hochzeit Steiner</small></div>
+        <div class="bk"><span><b>911 Turbo S</b> · Porsche 911 Turbo S</span><span class="st go">Unterwegs</span><small>J. Graf</small></div>
+        <div class="bk"><span><b>G 63</b> · Mercedes-AMG G 63</span><span class="st rq">Anfrage</span><small>L. Fischer</small></div>
+        <div class="bk"><span><b>RS6 Avant</b> · Audi RS6 Avant</span><span class="st dn">Zurück</span><small>T. Zimmermann · N. Keller</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KI -->
+<div class="wrap" id="ki" style="scroll-margin-top:80px">
+  <div class="dark">
+    <div class="grid">
+      <div class="rv">
+        <span class="eyebrow" style="background:rgba(245,196,81,.15);color:var(--mint)"><i style="background:var(--mint)"></i>KI-Assistent</span>
+        <h2 style="margin-top:18px">KI, die <span class="hl">nichts</span> erfindet</h2>
+        <p class="lead" style="margin-top:18px">Der Assistent antwortet nur mit dem, was in deinem System steht: Verfügbarkeiten, Preise, offene Zahlungen. Findet er nichts, sagt er das. Und er sieht nur, was deine Rolle sehen darf.</p>
+        <ul class="checks">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Jede Antwort mit Quelle</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Keine erfundenen Preise oder Termine</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Aktionen erst nach deiner Freigabe</li>
+        </ul>
+      </div>
+      <div class="chat rv" data-chat>
+        <div class="msg q">Wer hat noch eine offene Kaution?</div>
+        <div class="msg a">Zwei Kunden: <b>L. Fischer</b> (G 63, CHF 5’000) und <b>T. Zimmermann</b> (RS6 Avant, CHF 3’000).</div>
+        <div class="src"><i></i>Quelle: Zahlungen, Buchungen Woche 43</div>
+        <div class="msg q">Schick beiden eine Erinnerung.</div>
+        <div class="msg a">Entwurf ist bereit. Soll ich ihn an beide senden?<div class="act"><span class="ok">Freigeben</span><span>Bearbeiten</span></div></div>
+        <div class="src"><i></i>Wird erst nach deiner Freigabe verschickt · Beispieldaten</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SICHERHEIT -->
+<section id="sicherheit">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="eyebrow"><i></i>Sicherheit</span>
+      <h2>Deine Daten gehören <span class="hl">dir</span></h2>
+      <p class="lead">Kundendaten, Führerscheine, Zahlungen: In einer Vermietung liegt viel Vertrauliches. Darum ist Sicherheit bei uns kein Zusatz, sondern Grundlage.</p>
+    </div>
+    <div class="sec">
+      <div class="spot card rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><h3>Keine Werbung, kein Tracking</h3><p>Wir verkaufen keine Daten und zeigen keine Werbung. Deine Zahlen bleiben deine Zahlen.</p></div>
+      <div class="spot card rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><h3>Jeder sieht nur seins</h3><p>Jeder Betrieb sieht ausschliesslich die eigenen Fahrzeuge und Kunden. Die Trennung sitzt direkt in der Datenbank.</p></div>
+      <div class="spot card rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><h3>Verschlüsselt und ohne Passwort</h3><p>Alle Verbindungen sind verschlüsselt. Angemeldet wird per Link an deine E-Mail, es gibt kein Passwort, das gestohlen werden kann.</p></div>
+      <div class="spot card rv"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><h3>Server in Frankfurt</h3><p>Gespeichert wird in der EU. Den Export als Sicherung oder Excel-Datei bauen wir gerade ein.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFE -->
+<section id="tarife">
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i></i>Tarife</span>
+      <h2>Für jede <span class="hl">Flottengrösse</span></h2>
+      <p class="lead">Die Preise geben wir vor dem Start bekannt. Wer auf der Warteliste steht, erfährt sie zuerst.</p>
+    </div>
+    <div class="prices">
+      <div class="spot price rv">
+        <div class="top"><h3>Starter</h3></div>
+        <div class="amt">Preis folgt</div>
+        <p class="for">Für kleine Vermietungen und den Einstieg</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Bis 10 Fahrzeuge</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>2 Nutzer</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Buchungen, Flotte, Kunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Daily Briefing</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>KI-Assistent für Fragen</li>
+        </ul>
+        <a href="#warteliste" class="btn btn-ghost">Platz sichern</a>
+      </div>
+      <div class="spot price pop rv">
+        <div class="top"><h3>Professional</h3><span class="badge">Für Teams</span></div>
+        <div class="amt">Preis folgt</div>
+        <p class="for">Für wachsende Betriebe mit Team</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Bis 50 Fahrzeuge</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>10 Nutzer mit Rollen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Alles aus Starter</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Finanzen je Fahrzeug</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Verträge und Automationen (in Entwicklung)</li>
+        </ul>
+        <a href="#warteliste" class="btn btn-primary">Platz sichern</a>
+      </div>
+      <div class="spot price rv">
+        <div class="top"><h3>Enterprise</h3></div>
+        <div class="amt">Preis folgt</div>
+        <p class="for">Für grosse Flotten und mehrere Standorte</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Unbegrenzt Fahrzeuge und Nutzer</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Mehrere Standorte</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Alles aus Professional</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Eigene Vertragsvorlagen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Persönliche Einrichtung</li>
+        </ul>
+        <a href="#warteliste" class="btn btn-ghost">Platz sichern</a>
+      </div>
+    </div>
+    <p class="note price-note rv">Eintragen ist kostenlos und unverbindlich.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="fragen">
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i></i>Fragen</span>
+      <h2>Fragen? Hier die <span class="hl">Antworten.</span></h2>
+    </div>
+    <div class="faq">
+      <details class="rv" open><summary>Für wen ist editionrent.ai gedacht?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Für Autovermietungen in der Schweiz und in Deutschland, von wenigen Fahrzeugen bis zur grossen Flotte. Ob Sportwagen, Premium oder Transporter: Buchungen, Flotte und Kunden laufen in einem System.</p></details>
+      <details class="rv"><summary>Wann kann ich starten?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Wir schalten Betriebe schrittweise frei, in der Reihenfolge der Warteliste. Du bekommst eine E-Mail, sobald dein Platz bereit ist.</p></details>
+      <details class="rv"><summary>Was kostet es?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Die Preise geben wir vor dem Start bekannt, wer auf der Warteliste steht, erfährt sie zuerst. Das Eintragen ist kostenlos und unverbindlich.</p></details>
+      <details class="rv"><summary>Kann ich meine bestehenden Daten übernehmen?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Ja. Fahrzeuge erfasst du manuell, per Excel-Import oder bald per Foto des Fahrzeugausweises. Kunden und laufende Buchungen übernehmen wir beim Einrichten gemeinsam mit dir.</p></details>
+      <details class="rv"><summary>Muss ich etwas installieren?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Nein. editionrent.ai läuft im Browser auf Computer, Tablet und Handy. Updates bekommst du automatisch.</p></details>
+      <details class="rv"><summary>In welchen Sprachen gibt es Verträge?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Mietverträge und Rechnungen erstellen wir auf Deutsch, Französisch, Italienisch und Englisch. Die Funktion ist in Entwicklung und kommt mit den Verträgen.</p></details>
+      <details class="rv"><summary>Wo liegen meine Daten?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Auf Servern in Frankfurt. Jeder Betrieb hat einen eigenen, geschützten Bereich, andere Betriebe sehen deine Daten nie. Wer in deinem Team was sehen darf, legst du über Rollen fest.</p></details>
+      <details class="rv"><summary>Funktioniert es mit WhatsApp?<span class="pm"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></summary><p>Die Anbindung an die offizielle WhatsApp-Business-Plattform ist in Entwicklung und kommt nach dem Start. Antworten an Kunden gehen dann nur mit deiner Freigabe raus.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- WARTELISTE -->
+<section id="warteliste">
+  <div class="wrap">
+    <div class="wl rv">
+      <div class="wl-left">
+        <span class="eyebrow" style="background:rgba(245,196,81,.15);color:var(--mint);align-self:flex-start"><i style="background:var(--mint)"></i>Warteliste</span>
+        <h2>Sichere dir einen <span class="hl">Platz</span> für deinen Betrieb</h2>
+        <p class="lead">Wir schalten editionrent.ai Schritt für Schritt frei. Trag dich ein, dann bekommst du Bescheid, sobald du starten kannst.</p>
+        <ul class="checks">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Freischaltung in der Reihenfolge der Anmeldung</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Preise erfährst du zuerst</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Kostenlos und unverbindlich</li>
+        </ul>
+      </div>
+      <div class="wl-right">
+        <form class="grid" data-waitlist-form novalidate>
+          <label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+          <label class="f full">E-Mail<input type="email" name="email" autocomplete="email" placeholder="du@vermietung.ch" required></label>
+          <label class="f">Dein Name<input name="name" autocomplete="name" placeholder="Vor- und Nachname"></label>
+          <label class="f">Name der Autovermietung<input name="company" autocomplete="organization" placeholder="Firmenname" required></label>
+          <label class="f">Land<select name="country" required><option value="" selected disabled>Bitte wählen</option><option>Schweiz</option><option>Deutschland</option><option>Österreich</option><option>Anderes Land</option></select></label>
+          <label class="f">Anzahl Fahrzeuge<select name="fleet" required><option value="" selected disabled>Bitte wählen</option><option>1 bis 5</option><option>6 bis 15</option><option>16 bis 50</option><option>Mehr als 50</option></select></label>
+          <label class="consent full"><input type="checkbox" name="consent">Ich bin einverstanden, dass editionrent.ai mich zum Start per E-Mail kontaktiert. Abmelden geht jederzeit.</label>
+          <div class="full"><button type="submit" class="btn btn-primary">Auf die Warteliste</button></div>
+          <p class="err full" role="alert" hidden></p>
+          <p class="note full" style="text-align:center">Kostenlos und unverbindlich. Keine Zahlungsdaten.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a href="#top" class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#0e1a2f"/><path d="M18 44 L30 20 M30 44 L42 20" stroke="#f5c451" stroke-width="6" stroke-linecap="round"/><circle cx="46" cy="42" r="4" fill="#f5c451"/></svg><span>editionrent<b>.ai</b></span></a>
+        <p class="claim">Das Betriebssystem für Autovermietungen.</p>
+        <a href="#warteliste" class="btn btn-primary">Auf die Warteliste</a>
+      </div>
+      <div><h4>Produkt</h4><nav aria-label="Produkt"><a href="#funktionen">Funktionen</a><a href="#ablauf">Ablauf</a><a href="#ki">KI-Assistent</a><a href="#sicherheit">Sicherheit</a><a href="#tarife">Tarife</a><a href="#fragen">Fragen</a></nav></div>
+      <div><h4>Zugang</h4><nav aria-label="Zugang"><a href="#warteliste">Warteliste</a><a href="#video">Video</a></nav></div>
+    </div>
+    <div class="legal"><span>© 2026 editionrent.ai</span><span>Für Autovermietungen in der Schweiz und Deutschland</span></div>
+  </div>
+</footer>
+
+<div class="mcta" id="mcta"><a href="#warteliste" class="btn btn-primary">Platz auf der Warteliste sichern</a></div>
+
+<script>
+/* ===== Einstellungen ======================================================
+   Warteliste: Supabase-Projekt eintragen (dieselbe Datenbank wie die App,
+   Migration 20261019100000_waitlist.sql muss eingespielt sein).
+   Video: MP4-Datei (z. B. "video/vsl.mp4"), YouTube- oder Vimeo-Link.        */
+var CONFIG = {
+  SUPABASE_URL: "",       // z. B. "https://abcd1234.supabase.co"
+  SUPABASE_ANON_KEY: "",  // der öffentliche anon/publishable Key
+  VIDEO_URL: ""
+};
+/* ======================================================================== */
+(function () {
+  // Header beim Scrollen
+  var header = document.querySelector('header'), mcta = document.getElementById('mcta'), wl = document.getElementById('warteliste');
+  var onScroll = function () {
+    header.classList.toggle('scrolled', window.scrollY > 8);
+    var r = wl.getBoundingClientRect();
+    mcta.classList.toggle('show', window.scrollY > 700 && !(r.top < window.innerHeight && r.bottom > 0));
+  };
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Fortschrittsbalken
+  var bar = document.querySelector('.progress');
+  var prog = function () {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.setProperty('--p', h > 0 ? Math.min(1, window.scrollY / h) : 0);
+  };
+  window.addEventListener('scroll', prog, { passive: true }); window.addEventListener('resize', prog); prog();
+
+  if (!reduce) {
+    // Licht folgt der Maus
+    document.addEventListener('pointermove', function (e) {
+      var c = e.target.closest && e.target.closest('.spot');
+      if (!c) return;
+      var r = c.getBoundingClientRect();
+      c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    }, { passive: true });
+
+    // App im Hero kippt leicht mit der Maus
+    var tilt = document.querySelector('[data-tilt]');
+    if (tilt && window.matchMedia('(hover: hover)').matches) {
+      var wrapT = tilt.parentElement;
+      wrapT.addEventListener('pointermove', function (e) {
+        var r = wrapT.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        tilt.style.transform = 'rotateY(' + (x * 7) + 'deg) rotateX(' + (-y * 6) + 'deg)';
+      });
+      wrapT.addEventListener('pointerleave', function () { tilt.style.transform = ''; });
+    }
+
+    // Zahlen zählen hoch
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '’'); };
+    document.querySelectorAll('[data-count]').forEach(function (el, idx) {
+      var end = +el.dataset.count, tpl = el.dataset.fmt, t0 = null, dur = 1400, delay = 1300 + idx * 90;
+      setTimeout(function () {
+        var step = function (t) {
+          if (!t0) t0 = t;
+          var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+          el.textContent = tpl.replace('x', fmt(Math.round(end * e)));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }, delay);
+    });
+
+    // Chats laufen nacheinander ab, sobald sie sichtbar sind
+    var playChat = function (chat) {
+      var items = Array.prototype.slice.call(chat.children);
+      items.forEach(function (it) { it.hidden = true; it.classList.remove('show'); });
+      var t = 300;
+      items.forEach(function (it) {
+        var isAnswer = it.classList.contains('a');
+        if (isAnswer) {
+          var dots = document.createElement('div'); dots.className = 'typing'; dots.innerHTML = '<i></i><i></i><i></i>';
+          setTimeout(function () { chat.insertBefore(dots, it); }, t);
+          t += 1100;
+          setTimeout(function () { dots.remove(); }, t);
+        }
+        setTimeout(function () { it.hidden = false; it.classList.add('show'); }, t);
+        t += isAnswer ? 700 : 600;
+      });
+    };
+    if ('IntersectionObserver' in window) {
+      var cio = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (!e.isIntersecting || e.target.dataset.played) return;
+          e.target.dataset.played = '1'; playChat(e.target);
+        });
+      }, { threshold: .5 });
+      document.querySelectorAll('[data-chat]').forEach(function (c) { cio.observe(c); });
+    }
+  }
+
+  // Warteliste
+  var form = document.querySelector('[data-waitlist-form]');
+  if (form) {
+    var btn = form.querySelector('button[type=submit]');
+    var err = form.querySelector('.err');
+    var fail = function (t) { err.textContent = t; err.hidden = false; };
+    var done = function (exists) {
+      var box = document.createElement('div');
+      box.setAttribute('role', 'status'); box.className = 'done';
+      box.innerHTML = '<span class="ok"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></span><h3></h3><p>Wir schalten Betriebe in der Reihenfolge der Anmeldung frei und melden uns per E-Mail, sobald dein Platz bereit ist.</p>';
+      box.querySelector('h3').textContent = exists ? 'Du stehst bereits auf der Liste.' : 'Du stehst auf der Warteliste.';
+      form.replaceWith(box);
+    };
+    form.addEventListener('submit', function (e) {
+      e.preventDefault(); err.hidden = true;
+      var fd = new FormData(form);
+      if (fd.get('website')) return done(false);
+      var email = String(fd.get('email') || '').trim().toLowerCase();
+      var company = String(fd.get('company') || '').trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Bitte eine gültige E-Mail-Adresse eingeben.');
+      if (company.length < 2) return fail('Bitte den Namen deiner Autovermietung angeben.');
+      if (!fd.get('country')) return fail('Bitte ein Land wählen.');
+      if (!fd.get('fleet')) return fail('Bitte die Grösse deiner Flotte wählen.');
+      if (fd.get('consent') !== 'on') return fail('Bitte bestätige, dass wir dich per E-Mail kontaktieren dürfen.');
+      if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY) return fail('Die Warteliste ist noch nicht verbunden. Bitte versuche es später erneut.');
+      btn.disabled = true; btn.textContent = 'Wird eingetragen …';
+      fetch(CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rpc/join_waitlist', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', apikey: CONFIG.SUPABASE_ANON_KEY, authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY },
+        body: JSON.stringify({ p_email: email, p_name: String(fd.get('name') || '').trim(), p_company: company, p_country: String(fd.get('country')), p_fleet_size: String(fd.get('fleet')), p_source: 'index.html' })
+      }).then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function (inserted) { done(inserted === false); })
+        .catch(function () { fail('Das Eintragen hat nicht geklappt. Bitte versuche es erneut.'); })
+        .finally(function () { if (document.body.contains(btn)) { btn.disabled = false; btn.textContent = 'Auf die Warteliste'; } });
+    });
+  }
+
+  // Video
+  var vbtn = document.querySelector('#video button');
+  if (vbtn) {
+    var frame = vbtn.parentElement;
+    var src = CONFIG.VIDEO_URL.trim();
+    var label = vbtn.querySelector('.vlabel');
+    if (src) { label.textContent = 'Video ansehen'; vbtn.setAttribute('aria-label', 'Video abspielen'); }
+    vbtn.addEventListener('click', function () {
+      if (!src) {
+        if (frame.querySelector('.vnote')) return;
+        var n = document.createElement('span'); n.setAttribute('role', 'status'); n.className = 'vnote';
+        n.textContent = 'Das Video ist in Arbeit. Trag dich auf die Warteliste ein, dann schicken wir es dir als Erstes.';
+        frame.appendChild(n); return;
+      }
+      var yt = src.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/);
+      var vi = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+      var el;
+      if (yt || vi) {
+        el = document.createElement('iframe');
+        el.src = yt ? 'https://www.youtube-nocookie.com/embed/' + yt[1] + '?autoplay=1&rel=0&playsinline=1' : 'https://player.vimeo.com/video/' + vi[1] + '?autoplay=1';
+        el.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; el.allowFullscreen = true; el.title = 'editionrent.ai Video';
+      } else {
+        el = document.createElement('video'); el.src = src; el.controls = true; el.autoplay = true; el.playsInline = true;
+      }
+      vbtn.remove(); frame.appendChild(el);
+    });
+  }
+})();
+</script>
+</body></html>
