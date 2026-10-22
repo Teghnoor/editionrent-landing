@@ -3,22 +3,23 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Flotte, Buchungen, Kunden und Finanzen in einem System, mit einem Tagesüberblick jeden Morgen. Für Autovermietungen in der Schweiz und Deutschland. Jetzt auf die Warteliste.">
 <meta name="theme-color" content="#0e1a2f">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230e1a2f'/%3E%3Cpath d='M18 44 L30 20 M30 44 L42 20' stroke='%23f5c451' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='46' cy='42' r='4' fill='%23f5c451'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230e1a2f'/%3E%3Cg transform='translate%2832 32%29 scale%281.2%29 translate%28-34.5 -33%29'%3E%3Cpath d='M19 33H50' stroke='%23f5c451' stroke-width='6.5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M45 33A13 13 0 1 0 41.96 41.36' stroke='%23f5c451' stroke-width='6.5' stroke-linecap='round' fill='none'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#f4f3f0; --paper-2:#e9e7e1; --card:#ffffff; --ink:#0f1512; --ink-2:#3b4541; --mute:#6c7671;
   --line:rgba(15,21,18,.10); --line-2:rgba(15,21,18,.16);
   --green:#0e1a2f; --green-2:#1f3a8a; --mint:#f5c451; --mint-2:#fbefcc; --amber:#ef6c35; --red:#e2553f;
   --r:20px; --r-sm:12px; --shadow:0 1px 2px rgba(15,21,18,.05),0 12px 40px -12px rgba(15,21,18,.18);
-  --display:"Bricolage Grotesque",system-ui,sans-serif; --sans:"Inter",system-ui,-apple-system,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif; --sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;color-scheme:light}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--green-2);outline-offset:2px}
 img,svg{display:block}
 button,input,select{font:inherit;color:inherit}
 .wrap{width:100%;max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
@@ -420,7 +421,7 @@ footer{padding:clamp(80px,10vw,120px) 0 max(28px,env(safe-area-inset-bottom))}
 <header id="top">
   <div class="wrap bar">
     <a href="#top" class="logo" aria-label="editionrent.ai Startseite">
-      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#0e1a2f"/><path d="M18 44 L30 20 M30 44 L42 20" stroke="#f5c451" stroke-width="6" stroke-linecap="round"/><circle cx="46" cy="42" r="4" fill="#f5c451"/></svg>
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#0e1a2f"/><g transform="translate(32 32) scale(1.2) translate(-34.5 -33)"><path d="M19 33H50" stroke="#f5c451" stroke-width="6.5" stroke-linecap="round" fill="none"/><path d="M45 33A13 13 0 1 0 41.96 41.36" stroke="#f5c451" stroke-width="6.5" stroke-linecap="round" fill="none"/></g></svg>
       <span>editionrent<b>.ai</b></span>
     </a>
     <nav class="main" aria-label="Seitenbereiche">
@@ -457,7 +458,7 @@ footer{padding:clamp(80px,10vw,120px) 0 max(28px,env(safe-area-inset-bottom))}
         <div class="app-top"><i></i><i></i><i></i><span class="url">app.editionrent.ai/heute</span><span class="demo">Beispieldaten</span></div>
         <div class="app-body">
           <div class="side">
-            <div class="s-logo"><svg viewBox="0 0 64 64"><path d="M18 44 L30 20 M30 44 L42 20" stroke="#f5c451" stroke-width="7" stroke-linecap="round"/><circle cx="46" cy="42" r="5" fill="#f5c451"/></svg>editionrent</div>
+            <div class="s-logo"><svg viewBox="10 14 46 36"><path d="M19 33H50" stroke="#f5c451" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M45 33A13 13 0 1 0 41.96 41.36" stroke="#f5c451" stroke-width="7" stroke-linecap="round" fill="none"/></svg>editionrent</div>
             <a class="on"><i></i>Heute</a><a><i></i>Belegung</a><a><i></i>Buchungen</a><a><i></i>Flotte</a><a><i></i>Kunden</a><a><i></i>Finanzen</a><a><i></i>Assistent</a>
           </div>
           <div class="app-main">
@@ -803,7 +804,7 @@ footer{padding:clamp(80px,10vw,120px) 0 max(28px,env(safe-area-inset-bottom))}
   <div class="wrap">
     <div class="foot">
       <div>
-        <a href="#top" class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#0e1a2f"/><path d="M18 44 L30 20 M30 44 L42 20" stroke="#f5c451" stroke-width="6" stroke-linecap="round"/><circle cx="46" cy="42" r="4" fill="#f5c451"/></svg><span>editionrent<b>.ai</b></span></a>
+        <a href="#top" class="logo"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#0e1a2f"/><g transform="translate(32 32) scale(1.2) translate(-34.5 -33)"><path d="M19 33H50" stroke="#f5c451" stroke-width="6.5" stroke-linecap="round" fill="none"/><path d="M45 33A13 13 0 1 0 41.96 41.36" stroke="#f5c451" stroke-width="6.5" stroke-linecap="round" fill="none"/></g></svg><span>editionrent<b>.ai</b></span></a>
         <p class="claim">Das Betriebssystem für Autovermietungen.</p>
         <a href="#warteliste" class="btn btn-primary">Auf die Warteliste</a>
       </div>
@@ -881,6 +882,7 @@ var CONFIG = {
           if (p < 1) requestAnimationFrame(step);
         };
         requestAnimationFrame(step);
+        setTimeout(function () { el.textContent = tpl.replace('x', fmt(end)); }, dur + 400);
       }, delay);
     });
 
